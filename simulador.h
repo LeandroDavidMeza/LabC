@@ -7,4 +7,6 @@
 
 // Acá van declaraciones de funciones del módulo simulador
 
+float calcEnergiaCinetica(float m, float v);
+
 #endif
