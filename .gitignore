@@ -1,0 +1,14 @@
+# Ejecutables
+artemis
+artemis.exe
+*.exe
+
+# Archivos objeto
+*.o
+
+# Editor
+.vscode/
+
+# Otros
+*.txt
+*.py

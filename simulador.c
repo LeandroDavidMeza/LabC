@@ -4,13 +4,24 @@
 
 #include <stdio.h>
 #include "simulador.h"
+#include "artemis.h"
 
 // Acá se definen las funciones
 
-// Función para calcula energia cínetica
+// Función para calcular energia cinética
 // Recibe masa en kg y velocidad en m/s
 // Devuelve energía en Joules
-float calcEnergiaCinetica(float m, float v){
-    float Ec = 0.5f * m * v * v;
+double calcEnergiaCinetica(double m, double v){
+    double Ec = 0.5 * m * v * v;
     return Ec;
+}
+
+// Función para calcular la energía potencial gravitatoria
+// Recibe masa de la nave en kg y distancia al CENTRO de la Tierra en m
+// Devuelve energía en Joules (siempre negativa)
+double calcEnergiaPotencial(double m, double r){
+    //Formula para la energía potencial gravitatoria entre la Tierra
+    // y un objeto de masa m a una distancia r del centro de la Tierra
+    double U = -CONSTANTE_G * MASA_TIERRA_KG * m / r;
+    return U;
 }
