@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "validaciones.h"
+#ifdef _WIN32 // Si estamos en Windows, incluimos windows.h para configurar la consola
+#include <windows.h>
+#endif
 
 // Acá se definen las funciones del módulo
 
@@ -22,4 +25,12 @@ int leerEnteroValido(const char *mensaje) {
             return numero; //Si la entrada es un número entero válido, lo devuelve
         printf("Error: debe ingresar un número entero válido.\n");
     }
+}
+
+// Configura la consola para mostrar correctamente tildes y caracteres especiales
+void configurarConsola(void) {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);  // salida en UTF-8
+    SetConsoleCP(CP_UTF8);        // entrada en UTF-8
+#endif
 }

@@ -8,6 +8,9 @@
 #include "validaciones.h"
 
 int main(void) {
+
+    configurarConsola();
+
     printf("\tMISIÓN ARTEMIS\n\tInyección Traslunar y Trayectoria Libre\n");
     printf("\n--------------------------------------\n\n");
     int accion;

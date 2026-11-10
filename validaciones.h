@@ -8,5 +8,6 @@
 // Acá las declaraciones de funciones del módulo validaciones
 
 int leerEnteroValido(const char *mensaje);
+void configurarConsola(void);
 
 #endif
