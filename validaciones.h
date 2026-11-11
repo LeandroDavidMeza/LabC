@@ -9,5 +9,7 @@
 
 int leerEnteroValido(const char *mensaje);
 void configurarConsola(void);
+double leerDoubleValido(const char *mensaje);
+double leerDoubleEnRango(const char *mensaje, double min, double max);
 
 #endif
