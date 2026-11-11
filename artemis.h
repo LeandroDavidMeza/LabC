@@ -1,6 +1,7 @@
 // artemis.h
-// Declaración de constantes (#define), declaración de tipos de datos estructurados
-// (struct, typedef), y declaraciones de funciones públicas de la artemis.
+// Declaración de constantes físicas y de misión (#define), límites de los
+// datos de entrada, tipos de datos estructurados (struct, typedef) y
+// prototipos de las funciones de cálculo físico.
 
 #ifndef ARTEMIS_H
 #define ARTEMIS_H
@@ -19,6 +20,14 @@
 
 #define CONSTANTE_G 6.67430e-11 // Constante de gravitación universal en N*m²/kg² o m³/(kg*s²) 
 
-// Acá van prototipos de funciones del módulo artemis
+// Límites aceptados para los datos ingresados por el usuario
+#define MASA_MIN_KG 1.0
+#define MASA_MAX_KG 1000000.0
+#define VELOCIDAD_MIN_MS 0.0
+#define VELOCIDAD_MAX_MS 50000.0
+
+// Funciones físicas
+double calcEnergiaCinetica(double m, double v);
+double calcEnergiaPotencial(double m, double r);
 
 #endif
