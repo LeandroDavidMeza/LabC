@@ -72,6 +72,22 @@ void mostrarAnalisisConservacionYTrabajo(const EstadoMision *mision) {
     printf("  * Punto de equilibrio T-L:       %.2f km del centro terrestre\n", rEquilibrio / 1000.0);
     printf("  * Trabajo por unidad de masa:    %.4e J/kg (%.2f MJ/kg)\n", trabajoPorKg, trabajoPorKg / 1e6);
     printf("  * Trabajo total (m = %.0f kg):  %.4e J\n", mision->masa, trabajoTotal);
+    // Energía cinética por kg que ya tiene la nave después de la TLI
+    double cineticaPorKg = 0.5 * mision->velocidadInicial * mision->velocidadInicial;
+    // Lo que la energía cinética no llega a cubrir es el trabajo adicional
+    double adicionalPorKg = trabajoPorKg - cineticaPorKg;
+    // Velocidad cuya energía cinética alcanza justo: v = sqrt(2 * W/m)
+    double vMinima = calcVelocidadDesdeEnergia(trabajoPorKg * mision->masa, mision->masa);
+
+    printf("  * Energía cinética por kg (v = %.1f m/s): %.2f MJ/kg\n",
+           mision->velocidadInicial, cineticaPorKg / 1e6);
+    if (adicionalPorKg > 0.0) {
+        printf("  * Trabajo adicional mínimo (Wext/m):     %.2f J/kg\n", adicionalPorKg);
+        printf("  * Trabajo adicional total:               %.4e J\n", adicionalPorKg * mision->masa);
+    } else {
+        printf("  * No hace falta trabajo adicional: la energía cinética alcanza.\n");
+    }
+    printf("  * Velocidad mínima de inyección:         %.2f m/s\n", vMinima);
 
     printf("\n[Pregunta 4 - Justificación Energética Tierra-Luna vs. Luna-Tierra]:\n");
     printf("  La Tierra tiene ~81 veces más masa que la Luna. El punto de equilibrio está\n");
@@ -79,8 +95,8 @@ void mostrarAnalisisConservacionYTrabajo(const EstadoMision *mision) {
            rEquilibrio / 1000.0, (DISTANCIA_MEDIA_TIERRA_LUNA_M - rEquilibrio) / 1000.0);
     printf("  de la Luna).\n");
     printf("  * Energía p/ ir de LEO al equilibrio:      %.2f MJ/kg\n", trabajoPorKg / 1e6);
-    printf("  * Energía p/ volver de Luna al equilibrio: %.2f MJ/kg (~22 veces menor)\n",
-           trabajoRegresoPorKg / 1e6);
+    printf("  * Energía p/ volver de Luna al equilibrio: %.2f MJ/kg (~%.0f veces menor)\n",
+           trabajoRegresoPorKg / 1e6, trabajoPorKg / trabajoRegresoPorKg);
 
     pausarConsola();
 }
