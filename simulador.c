@@ -143,21 +143,31 @@ void ejecutarSimulacionPorTurnos(EstadoMision *mision) {
         if (ecActual <= 0.0) {
             printf(" [ALERTA] Energía cinética agotada. La gravedad terrestre frenó la nave.\n");
             int resp = leerEnteroEnRango(" ¿Activar propulsores auxiliares de emergencia? (1=Sí, 2=No): ", 1, 2);
-            if (resp == 1) {
+           if (resp == 1) {
                 energiaMecanica += calcEnergiaCinetica(mision->masa, 1500.0);
                 ecActual = energiaMecanica - epActual;
                 mision->combustibleExtraKg += 180.0;
                 maniobra = 1;
-                printf(" [OK] Impulso auxiliar ejecutado. Trayectoria recuperada.\n");
-            } else {
+                // El impulso puede no alcanzar si la nave venía muy lenta
+                if (ecActual > 0.0)
+                    printf(" [OK] Impulso auxiliar ejecutado. Trayectoria recuperada.\n");
+                else
+                    printf(" [FALLA] El impulso auxiliar no alcanza para vencer la gravedad.\n");
+            }
+
+            // Si no se activó el impulso, o no alcanzó, la misión se aborta
+            if (ecActual <= 0.0) {
                 for (int j = i; j < CANT_ETAPAS; j++) {
                     mision->historial[j].numeroEtapa = j + 1;
                     mision->historial[j].distanciaTierra = distanciasEtapas[j];
                     mision->historial[j].velocidad = 0.0;
                     mision->historial[j].energiaCinetica = 0.0;
-                    mision->historial[j].energiaPotencial = epActual;
+                    // Energía potencial calculada con la distancia de cada etapa
+                    mision->historial[j].energiaPotencial =
+                        calcEnergiaPotencialSistema(mision->masa, distanciasEtapas[j]);
                     mision->historial[j].maniobraRealizada = 0;
                 }
+                mision->historial[i].maniobraRealizada = maniobra;
                 mision->misionExitosa = 0;
                 printf("\n [MISIÓN ABORTADA] Orion cae de regreso hacia la Tierra.\n");
                 break;
