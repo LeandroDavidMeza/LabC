@@ -31,16 +31,22 @@ Además incluye un **juego de simulación por turnos** del viaje translunar y un
 
 ## Reglas del juego (opción 6)
 
-* **Objetivo:** llevar a Orion desde la órbita LEO hasta la Luna **gastando el menor Δv posible** (Δv = cambio de velocidad que aportan los motores; más Δv significa más combustible).
-* El viaje tiene **5 etapas**: fin de la TLI (LEO), crucero a 100.000 km, crucero a 250.000 km, punto de equilibrio Tierra-Luna (~345.672 km) y aproximación a la Luna (a 2.000 km de su centro).
-* Tras la TLI la nave viaja **por inercia** y la gravedad terrestre la frena. En cada etapa el programa muestra la telemetría (velocidad, energías, aceleración neta) y el **margen de energía** para llegar al punto de equilibrio.
-* **En las etapas 1 a 3** el jugador decide: mantener la inercia o **encender el motor** para una corrección de trayectoria (TCM) de entre 0,1 y 100 m/s.
-* Si a la nave no le alcanza la energía para llegar a una etapa, **se detiene y vuelve a caer: la misión falla**. El programa calcula hasta dónde llegó, avanzando de a 100 km hasta que se le acaba la energía cinética.
-* Si pasa el punto de equilibrio, la Luna la atrae y la misión es **exitosa**.
-* **Desempeño:** el reporte compara el Δv usado con el Δv mínimo posible y califica la misión (Excelente / Buena / Mejorable / Fallida).
-* **Pista física:** corregir temprano conviene. Como ΔK = ½·m·[(v+Δv)² − v²], para ganar la misma energía hace falta menos Δv cuando la nave va más rápido.
+**OBJETIVO**: hay que llevar la nave Orion desde la Tierra hasta la Luna usando el motor lo menos posible.
 
-> **Dato importante:** con los datos oficiales (10.900 m/s) y este modelo simplificado, la nave **queda corta por muy poco**: le faltan unos 57 kJ/kg para llegar al punto de equilibrio (haría falta v_TLI ≈ 10.905,2 m/s). Por eso, para completar la misión con los datos oficiales hay que hacer al menos una corrección (5,24 m/s si se hace en la etapa 1).
+Cómo se juega:
+
+1. La nave arranca con los motores apagados y viaja sola, por inercia. La gravedad de la Tierra la va frenando.
+2. El viaje tiene 5 etapas: salida de la órbita LEO, 100.000 km, 250.000 km, punto de equilibrio Tierra-Luna y llegada a la Luna.
+3. En cada etapa el programa muestra la velocidad y la energía de la nave, y avisa si le alcanza para llegar al punto de equilibrio.
+4. En las etapas 1, 2 y 3 el jugador elige:
+    1 = seguir sin motor, o
+    2 = encender el motor y sumarle velocidad (entre 0,1 y 100 m/s). Esa velocidad extra se llama Δv.
+5. Se gana si la nave pasa el punto de equilibrio (etapa 4): desde ahí la Luna la atrae sola.
+6. Se pierde si se queda sin energía antes: frena y vuelve a caer hacia la Tierra.
+
+**Puntaje**: el reporte final (opción 7) compara el Δv que usó el jugador con el mínimo necesario y califica la misión: Excelente, Buena, Mejorable o Fallida.
+
+**El truco**: conviene encender el motor lo antes posible, porque la nave va más rápido y le cuesta menos ganar energía. Con los datos oficiales la nave no llega sola por muy poco: alcanza con sumar 5,24 m/s en la etapa 1, pero si se espera a la etapa 3 hacen falta más de 71 m/s.
 
 ## Funcionamiento del programa
 
