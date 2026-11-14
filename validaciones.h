@@ -5,11 +5,18 @@
 #ifndef VALIDACIONES_H
 #define VALIDACIONES_H
 
-int leerEnteroValido(const char *mensaje);
-int leerEnteroEnRango(const char *mensaje, int min, int max);
+#define TAM_LINEA 100  // cantidad máxima de caracteres que se leen por respuesta
+
+// Pide un número entero hasta que el usuario ingrese uno válido entre min y max
+int leerEnteroEnRango(char mensaje[], int min, int max);
+
+// Pide un número real (con decimales) hasta que esté entre min y max
+double leerRealEnRango(char mensaje[], double min, double max);
+
+// Pide una respuesta S o N (acepta también s o n) y devuelve 'S' o 'N'
+char leerSiNo(char mensaje[]);
+
 void configurarConsola(void);
-double leerDoubleValido(const char *mensaje);
-double leerDoubleEnRango(const char *mensaje, double min, double max);
 void pausarConsola(void);
 
 #endif
