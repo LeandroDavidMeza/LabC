@@ -180,9 +180,5 @@ gcc -Wall -Wextra main.c simulador.c artemis.c validaciones.c -o artemis -lm
 
 ## Registro de uso de Inteligencia Artificial
 
-> **Completar** con todos los usos de IA del grupo a lo largo del trabajo (herramienta, para qué se usó, qué se aceptó, qué se descartó o modificó y cómo se verificó).
+Se utilizó IA para la revisión del proyecto contra la consigna. Detectó errores en las validaciones (desborde de enteros, líneas largas), el reporte con datos mezclados, valores escritos a mano en la pregunta d) y que con los datos oficiales la nave no llega al punto de equilibrio. Propuso las correcciones, la simulación con TCM, la calificación de desempeño y este README.
 
-| Fecha | Integrante | Herramienta | Para qué se usó | Qué revisamos, adaptamos o descartamos |
-|---|---|---|---|---|
-| 13/11/2026 | Sanz, Victoria | Claude (Anthropic) | Revisión del proyecto contra la consigna. Detectó errores en las validaciones (desborde de enteros, líneas largas), el reporte con datos mezclados, valores escritos a mano en la pregunta d) y que con los datos oficiales la nave no llega al punto de equilibrio. Propuso las correcciones, la simulación con TCM, la calificación de desempeño y este README. A pedido del grupo, después se simplificó el código para usar solo herramientas vistas en la cursada (`fgets`, `sscanf`, `if`, `while`, `switch`, arreglos, structs y punteros). | *(completar: qué verificaron ustedes, qué cambiaron y qué decidieron no usar)* |
-| *(completar)* | | | | |
