@@ -72,6 +72,22 @@ void mostrarAnalisisConservacionYTrabajo(const EstadoMision *mision) {
     printf("  * Punto de equilibrio T-L:       %.2f km del centro terrestre\n", rEquilibrio / 1000.0);
     printf("  * Trabajo por unidad de masa:    %.4e J/kg (%.2f MJ/kg)\n", trabajoPorKg, trabajoPorKg / 1e6);
     printf("  * Trabajo total (m = %.0f kg):  %.4e J\n", mision->masa, trabajoTotal);
+    // Energía cinética por kg que ya tiene la nave después de la TLI
+    double cineticaPorKg = 0.5 * mision->velocidadInicial * mision->velocidadInicial;
+    // Lo que la energía cinética no llega a cubrir es el trabajo adicional
+    double adicionalPorKg = trabajoPorKg - cineticaPorKg;
+    // Velocidad cuya energía cinética alcanza justo: v = sqrt(2 * W/m)
+    double vMinima = calcVelocidadDesdeEnergia(trabajoPorKg * mision->masa, mision->masa);
+
+    printf("  * Energía cinética por kg (v = %.1f m/s): %.2f MJ/kg\n",
+           mision->velocidadInicial, cineticaPorKg / 1e6);
+    if (adicionalPorKg > 0.0) {
+        printf("  * Trabajo adicional mínimo (Wext/m):     %.2f J/kg\n", adicionalPorKg);
+        printf("  * Trabajo adicional total:               %.4e J\n", adicionalPorKg * mision->masa);
+    } else {
+        printf("  * No hace falta trabajo adicional: la energía cinética alcanza.\n");
+    }
+    printf("  * Velocidad mínima de inyección:         %.2f m/s\n", vMinima);
 
     printf("\n[Pregunta 4 - Justificación Energética Tierra-Luna vs. Luna-Tierra]:\n");
     printf("  La Tierra tiene ~81 veces más masa que la Luna. El punto de equilibrio está\n");
@@ -79,8 +95,8 @@ void mostrarAnalisisConservacionYTrabajo(const EstadoMision *mision) {
            rEquilibrio / 1000.0, (DISTANCIA_MEDIA_TIERRA_LUNA_M - rEquilibrio) / 1000.0);
     printf("  de la Luna).\n");
     printf("  * Energía p/ ir de LEO al equilibrio:      %.2f MJ/kg\n", trabajoPorKg / 1e6);
-    printf("  * Energía p/ volver de Luna al equilibrio: %.2f MJ/kg (~22 veces menor)\n",
-           trabajoRegresoPorKg / 1e6);
+    printf("  * Energía p/ volver de Luna al equilibrio: %.2f MJ/kg (~%.0f veces menor)\n",
+           trabajoRegresoPorKg / 1e6, trabajoPorKg / trabajoRegresoPorKg);
 
     pausarConsola();
 }
@@ -127,21 +143,31 @@ void ejecutarSimulacionPorTurnos(EstadoMision *mision) {
         if (ecActual <= 0.0) {
             printf(" [ALERTA] Energía cinética agotada. La gravedad terrestre frenó la nave.\n");
             int resp = leerEnteroEnRango(" ¿Activar propulsores auxiliares de emergencia? (1=Sí, 2=No): ", 1, 2);
-            if (resp == 1) {
+           if (resp == 1) {
                 energiaMecanica += calcEnergiaCinetica(mision->masa, 1500.0);
                 ecActual = energiaMecanica - epActual;
                 mision->combustibleExtraKg += 180.0;
                 maniobra = 1;
-                printf(" [OK] Impulso auxiliar ejecutado. Trayectoria recuperada.\n");
-            } else {
+                // El impulso puede no alcanzar si la nave venía muy lenta
+                if (ecActual > 0.0)
+                    printf(" [OK] Impulso auxiliar ejecutado. Trayectoria recuperada.\n");
+                else
+                    printf(" [FALLA] El impulso auxiliar no alcanza para vencer la gravedad.\n");
+            }
+
+            // Si no se activó el impulso, o no alcanzó, la misión se aborta
+            if (ecActual <= 0.0) {
                 for (int j = i; j < CANT_ETAPAS; j++) {
                     mision->historial[j].numeroEtapa = j + 1;
                     mision->historial[j].distanciaTierra = distanciasEtapas[j];
                     mision->historial[j].velocidad = 0.0;
                     mision->historial[j].energiaCinetica = 0.0;
-                    mision->historial[j].energiaPotencial = epActual;
+                    // Energía potencial calculada con la distancia de cada etapa
+                    mision->historial[j].energiaPotencial =
+                        calcEnergiaPotencialSistema(mision->masa, distanciasEtapas[j]);
                     mision->historial[j].maniobraRealizada = 0;
                 }
+                mision->historial[i].maniobraRealizada = maniobra;
                 mision->misionExitosa = 0;
                 printf("\n [MISIÓN ABORTADA] Orion cae de regreso hacia la Tierra.\n");
                 break;
@@ -189,15 +215,42 @@ void mostrarReporteTelemetria(const EstadoMision *mision) {
     printf("                     REPORTE FINAL DE TELEMETRÍA TRANSLUNAR                     \n");
     printf("================================================================================\n");
 
+    // Resultados analíticos: se calculan con los datos actuales de la misión,
+    // así el reporte los muestra aunque no se haya corrido la simulación
+    double rInicial = RADIO_TIERRA_M + mision->altitudInicial;
+    double rEquilibrio = calcPuntoEquilibrioGravitatorio();
+    double energiaCinetica = calcEnergiaCinetica(mision->masa, mision->velocidadInicial);
+    double trabajoPorKg = calcTrabajoPorUnidadMasa(rInicial, rEquilibrio);
+    double cineticaPorKg = 0.5 * mision->velocidadInicial * mision->velocidadInicial;
+    double adicionalPorKg = trabajoPorKg - cineticaPorKg;
+    double vMinima = calcVelocidadDesdeEnergia(trabajoPorKg * mision->masa, mision->masa);
+
+    printf(" [DATOS DE LA MISIÓN]\n");
+    printf("   Masa: %.1f kg | v_TLI: %.1f m/s | Altitud LEO: %.1f km\n",
+           mision->masa, mision->velocidadInicial, mision->altitudInicial / 1000.0);
+
+    printf("\n [RESULTADOS ANALÍTICOS]\n");
+    printf("   Energía cinética inicial (Ki):      %.4e J\n", energiaCinetica);
+    printf("   Punto de equilibrio Tierra-Luna:    %.2f km del centro terrestre\n",
+           rEquilibrio / 1000.0);
+    printf("   Trabajo necesario por kg:           %.2f MJ/kg\n", trabajoPorKg / 1e6);
+    if (adicionalPorKg > 0.0)
+        printf("   Trabajo adicional mínimo (Wext/m):  %.2f J/kg\n", adicionalPorKg);
+    else
+        printf("   Trabajo adicional mínimo (Wext/m):  0 J/kg (la energía cinética alcanza)\n");
+    printf("   Velocidad mínima de inyección:      %.2f m/s\n", vMinima);
+    printf("--------------------------------------------------------------------------------\n");
+
     if (!mision->simulacionRealizada) {
-        printf(" Aún no se ha corrido la simulación por turnos (Opción 3 del menú).\n");
+        printf(" [SIMULACIÓN] Aún no se ha corrido la simulación por turnos (Opción 3 del menú).\n");
+        printf("================================================================================\n");
         pausarConsola();
         return;
     }
 
-    printf(" Resultado: %s | Masa: %.1f kg | v_TLI: %.1f m/s | Combustible extra: %.1f kg\n",
+    printf(" [SIMULACIÓN] Resultado: %s | Combustible extra: %.1f kg\n",
            mision->misionExitosa ? "MISIÓN EXITOSA" : "MISIÓN ABORTADA",
-           mision->masa, mision->velocidadInicial, mision->combustibleExtraKg);
+           mision->combustibleExtraKg);
     printf("--------------------------------------------------------------------------------\n");
     printf(" Etapa | Dist. Tierra (km) | Velocidad (m/s) | E. Cinética (J) | Propulsión\n");
     printf("--------------------------------------------------------------------------------\n");
